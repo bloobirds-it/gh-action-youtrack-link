@@ -32,8 +32,7 @@ async function run() {
         "accept": "application/json",
         "cache-control": "no-cache",
         "content-type": "application/json"
-      },
-      "body": false
+      }
     })
       .then(response => {
         if (response.ok) {
