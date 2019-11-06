@@ -11,6 +11,9 @@ inputs:
     description: 'Base URL of your YouTrack instance'
     required: true
     default: 'https://my-yt.myjetbrains.com/youtrack'
+  youtrackToken:
+    description: 'Youtrack permanent token'
+    required: true
 outputs:
   issueId:
     description: 'The issue ID'

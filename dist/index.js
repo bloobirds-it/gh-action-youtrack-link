@@ -516,6 +516,7 @@ module.exports = require("os");
 
 const core = __webpack_require__(470);
 const github = __webpack_require__(469);
+const fetch = __webpack_require__(454);
 
 
 // most @actions toolkit packages have async methods
@@ -537,8 +538,35 @@ async function run() {
     }
     const issueId = ext[0];
     console.log(`Found issue ID ${issueId}`);
-    const ytUrl = core.getInput('youtrackUrl');
-    const body = ytUrl + (ytUrl.endsWith("/") ? "" : "/") + "issue/" + issueId;
+    const ytUrl = core.getInput('youtrackUrl') + (core.getInput('youtrackUrl').endsWith("/") ? "" : "/");
+    const ytToken = core.getInput('youtrackToken');
+    const ytApiUrl = ytUrl + 'api/issues/' + issueId;
+    await fetch(ytApiUrl, {
+      "method": "GET",
+      "headers": {
+        "authorization": "Bearer " + ytToken,
+        "accept": "application/json",
+        "cache-control": "no-cache",
+        "content-type": "application/json"
+      },
+      "body": false
+    })
+      .then(response => {
+        if (response.ok) {
+          console.log(`Issue found in YT`);
+        } else {
+          if (response.status === 404) {
+            console.log(`Issue not found in YT with code ${response.status}`);
+            core.setFailed(`Issue ${issueId} not found in your Youtrack instance.`);
+          } else {
+            core.setFailed(`Unknown error connecting to youtrack ${response.status}`);
+          }
+        }
+      })
+      .catch(err => {
+        core.setFailed(err.message);
+      });
+    const body = ytUrl + "issue/" + issueId;
     await octokit.issues.createComment({
       owner: github.context.issue.owner,
       repo: github.context.issue.repo,
