@@ -554,8 +554,8 @@ async function run() {
         if (response.ok) {
           console.log(`Issue found in YT`);
           const ytApiIssueCommentUrl = ytApiIssueUrl + '/comments';
-          const repoUrl = `https://github.com/${github.context.issue.owner}/${github.context.issue.owner}`;
-          const pullUrl = `https://github.com/${github.context.issue.owner}/${github.context.issue.owner}/pull/17`;
+          const repoUrl = `https://github.com/${github.context.issue.owner}/${github.context.issue.repo}`;
+          const pullUrl = `https://github.com/${github.context.issue.owner}/${github.context.issue.repo}/pull/17`;
           await fetch(ytApiIssueCommentUrl, {
             "method": "POST",
             "headers": {
@@ -565,7 +565,7 @@ async function run() {
               "content-type": "application/json"
             },
             body: JSON.stringify({
-              text: `New Pull Request [#${github.context.issue.number}](${pullUrl}) opened at [${github.context.issue.owner}/${github.context.issue.owner}](${repoUrl}).`,
+              text: `New Pull Request [#${github.context.issue.number}](${pullUrl}) opened at [${github.context.issue.owner}/${github.context.issue.repo}](${repoUrl}).`,
               usesMarkdown: true,
             })
           }).then(response => {
@@ -586,7 +586,7 @@ async function run() {
       .catch(err => {
         core.setFailed(err.message);
       });
-    const body = ytUrl + "issue/" + issueId;
+    const body = `PR attached to issue [${issueId}](${ytUrl}issue/${issueId})`;
     await octokit.issues.createComment({
       owner: github.context.issue.owner,
       repo: github.context.issue.repo,
