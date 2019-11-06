@@ -24,8 +24,8 @@ async function run() {
     console.log(`Found issue ID ${issueId}`);
     const ytUrl = core.getInput('youtrackUrl') + (core.getInput('youtrackUrl').endsWith("/") ? "" : "/");
     const ytToken = core.getInput('youtrackToken');
-    const ytApiUrl = ytUrl + 'api/issues/' + issueId;
-    await fetch(ytApiUrl, {
+    const ytApiIssueUrl = ytUrl + 'api/issues/' + issueId;
+    await fetch(ytApiIssueUrl, {
       "method": "GET",
       "headers": {
         "authorization": "Bearer " + ytToken,
@@ -34,9 +34,30 @@ async function run() {
         "content-type": "application/json"
       }
     })
-      .then(response => {
+      .then(async response => {
         if (response.ok) {
           console.log(`Issue found in YT`);
+          const ytApiIssueCommentUrl = ytApiIssueUrl + '/comments';
+          const repoUrl = `https://github.com/${github.context.issue.owner}/${github.context.issue.owner}`;
+          const pullUrl = `https://github.com/${github.context.issue.owner}/${github.context.issue.owner}/pull/17`;
+          await fetch(ytApiIssueCommentUrl, {
+            "method": "POST",
+            "headers": {
+              "authorization": "Bearer " + ytToken,
+              "accept": "application/json",
+              "cache-control": "no-cache",
+              "content-type": "application/json"
+            },
+            body: JSON.stringify({
+              text: `New Pull Request [#${github.context.issue.number}](${pullUrl}) opened at [${github.context.issue.owner}/${github.context.issue.owner}](${repoUrl}).`,
+              usesMarkdown: true,
+            })
+          }).then(response => {
+            console.log(`Comment stored in YT with status ${response.status}`);
+          })
+            .catch(err => {
+              core.setFailed(err.message);
+            });
         } else {
           if (response.status === 404) {
             console.log(`Issue not found in YT with code ${response.status}`);
