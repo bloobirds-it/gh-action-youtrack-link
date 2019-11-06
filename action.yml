@@ -1,0 +1,19 @@
+name: 'YouTrack Link'
+description: 'Posts a comment with the YT issue link'
+inputs:
+  githubToken:
+    description: 'GitHub Token'
+    required: true
+  issueRegex:
+    description: 'Issue Regexp to extract from the title'
+    required: true
+  youtrackUrl:
+    description: 'Base URL of your YouTrack instance'
+    required: true
+    default: 'https://my-yt.myjetbrains.com/youtrack'
+outputs:
+  issueId:
+    description: 'The issue ID'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
