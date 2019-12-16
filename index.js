@@ -39,7 +39,7 @@ async function run() {
           console.log(`Issue found in YT`);
           const ytApiIssueCommentUrl = ytApiIssueUrl + '/comments';
           const repoUrl = `https://github.com/${github.context.issue.owner}/${github.context.issue.repo}`;
-          const pullUrl = `https://github.com/${github.context.issue.owner}/${github.context.issue.repo}/pull/17`;
+          const pullUrl = `https://github.com/${github.context.issue.owner}/${github.context.issue.repo}/pull/${github.context.issue.number}`;
           await fetch(ytApiIssueCommentUrl, {
             "method": "POST",
             "headers": {
