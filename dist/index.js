@@ -555,6 +555,13 @@ async function run() {
     })
       .then(async response => {
         if (response.ok) {
+          const body = `PR attached to issue [${issueId}](${ytUrl}issue/${issueId})`;
+          await octokit.issues.createComment({
+            owner: github.context.issue.owner,
+            repo: github.context.issue.repo,
+            issue_number: github.context.issue.number,
+            body: body,
+          });
           console.log(`Issue found in YT`);
           const ytApiIssueCommentUrl = ytApiIssueUrl + '/comments';
           const ytApiGetFields = ytApiIssueUrl + '/fields?fields=name,id,value(name)';
@@ -596,7 +603,13 @@ async function run() {
               body: JSON.stringify(statePayload)
             }).then(response => {
               console.log(`Changed issue to PR Open ${response.status}`);
-              return response.json();
+              const body = `Issue [${issueId}](${ytUrl}issue/${issueId}) changed from ${currentStateValue} to PR Open`;
+              octokit.issues.createComment({
+                owner: github.context.issue.owner,
+                repo: github.context.issue.repo,
+                issue_number: github.context.issue.number,
+                body: body,
+              });
             }).catch(err => {
               core.setFailed(err.message);
             });
@@ -613,13 +626,6 @@ async function run() {
       .catch(err => {
         core.setFailed(err.message);
       });
-    const body = `PR attached to issue [${issueId}](${ytUrl}issue/${issueId})`;
-    await octokit.issues.createComment({
-      owner: github.context.issue.owner,
-      repo: github.context.issue.repo,
-      issue_number: github.context.issue.number,
-      body: body,
-    });
     core.setOutput('issueId', issueId);
   } 
   catch (error) {
