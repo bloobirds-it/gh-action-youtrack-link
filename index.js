@@ -25,39 +25,66 @@ async function run() {
     const ytUrl = core.getInput('youtrackUrl') + (core.getInput('youtrackUrl').endsWith("/") ? "" : "/");
     const ytToken = core.getInput('youtrackToken');
     const ytApiIssueUrl = ytUrl + 'api/issues/' + issueId;
-    await fetch(ytApiIssueUrl, {
-      "method": "GET",
+    const ytHeaders = {
       "headers": {
         "authorization": "Bearer " + ytToken,
         "accept": "application/json",
         "cache-control": "no-cache",
         "content-type": "application/json"
       }
+    };
+    await fetch(ytApiIssueUrl, {
+      "method": "GET",
+      ...ytHeaders
     })
       .then(async response => {
         if (response.ok) {
           console.log(`Issue found in YT`);
           const ytApiIssueCommentUrl = ytApiIssueUrl + '/comments';
+          const ytApiGetFields = ytApiIssueUrl + '/fields?fields=name,id,value(name)';
+          const ytApiChangeStateField = stateFieldId => ytApiIssueUrl + `/fields/${stateFieldId}?fields=name,id,value(name)`;
           const repoUrl = `https://github.com/${github.context.issue.owner}/${github.context.issue.repo}`;
           const pullUrl = `https://github.com/${github.context.issue.owner}/${github.context.issue.repo}/pull/${github.context.issue.number}`;
           await fetch(ytApiIssueCommentUrl, {
             "method": "POST",
-            "headers": {
-              "authorization": "Bearer " + ytToken,
-              "accept": "application/json",
-              "cache-control": "no-cache",
-              "content-type": "application/json"
-            },
+            ...ytHeaders,
             body: JSON.stringify({
               text: `New Pull Request [#${github.context.issue.number}](${pullUrl}) opened at [${github.context.issue.owner}/${github.context.issue.repo}](${repoUrl}) by ${github.context.actor}.`,
               usesMarkdown: true,
             })
           }).then(response => {
             console.log(`Comment stored in YT with status ${response.status}`);
-          })
-            .catch(err => {
+          }).catch(err => {
               core.setFailed(err.message);
             });
+          const fields = await fetch(ytApiGetFields, {
+            "method": "GET",
+            ...ytHeaders
+          }).then(response => {
+            console.log(`Got issue fields ${response.status}`);
+            return response.json();
+          }).catch(err => {
+            core.setFailed(err.message);
+          });
+          const currentState = fields.find(x => x.name === "State");
+          const currentStateValue = currentState && currentState.value && currentState.value.name.toLowerCase();
+          if (currentStateValue === 'to do' || currentStateValue === 'to fix' || currentStateValue === 'in progress') {
+            const statePayload = {
+              "value": {
+                "name": "PR Open"
+              }
+            };
+            await fetch(ytApiChangeStateField(currentState.id), {
+              "method": "POST",
+              ...ytHeaders,
+              body: JSON.stringify(statePayload)
+            }).then(response => {
+              console.log(`Changed issue to PR Open ${response.status}`);
+              return response.json();
+            }).catch(err => {
+              core.setFailed(err.message);
+            });
+          }
         } else {
           if (response.status === 404) {
             console.log(`Issue not found in YT with code ${response.status}`);
