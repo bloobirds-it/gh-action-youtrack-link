@@ -603,7 +603,7 @@ async function run() {
               body: JSON.stringify(statePayload)
             }).then(response => {
               console.log(`Changed issue to PR Open ${response.status}`);
-              const body = `Issue [${issueId}](${ytUrl}issue/${issueId}) changed from ${currentStateValue} to PR Open`;
+              const body = `Issue [${issueId}](${ytUrl}issue/${issueId}) changed from *${currentState.value.name}* to *PR Open*`;
               octokit.issues.createComment({
                 owner: github.context.issue.owner,
                 repo: github.context.issue.repo,
@@ -613,6 +613,15 @@ async function run() {
             }).catch(err => {
               core.setFailed(err.message);
             });
+          }
+          const currentType = fields.find(x => x.name === "Type");
+          if (currentType && currentType.value && currentType.value.name){
+            octokit.issues.addLabels({
+              owner: github.context.issue.owner,
+              repo: github.context.issue.repo,
+              issue_number: github.context.issue.number,
+              labels: [`@yt/type/${currentType.value.name}`]
+            })
           }
         } else {
           if (response.status === 404) {
