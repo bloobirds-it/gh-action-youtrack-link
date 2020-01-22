@@ -555,7 +555,7 @@ async function run() {
           console.log(`Issue found in YT`);
           const ytApiIssueCommentUrl = ytApiIssueUrl + '/comments';
           const repoUrl = `https://github.com/${github.context.issue.owner}/${github.context.issue.repo}`;
-          const pullUrl = `https://github.com/${github.context.issue.owner}/${github.context.issue.repo}/pull/17`;
+          const pullUrl = `https://github.com/${github.context.issue.owner}/${github.context.issue.repo}/pull/${github.context.issue.number}`;
           await fetch(ytApiIssueCommentUrl, {
             "method": "POST",
             "headers": {
@@ -565,7 +565,7 @@ async function run() {
               "content-type": "application/json"
             },
             body: JSON.stringify({
-              text: `New Pull Request [#${github.context.issue.number}](${pullUrl}) opened at [${github.context.issue.owner}/${github.context.issue.repo}](${repoUrl}).`,
+              text: `New Pull Request [#${github.context.issue.number}](${pullUrl}) opened at [${github.context.issue.owner}/${github.context.issue.repo}](${repoUrl}) by ${github.context.actor}.`,
               usesMarkdown: true,
             })
           }).then(response => {
