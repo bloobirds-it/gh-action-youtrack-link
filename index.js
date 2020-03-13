@@ -102,14 +102,14 @@ async function labelPR(labels) {
 }
 
 async function getPrDescription() {
-  const pr = await octokit.pulls.get({
+  const { data } = await octokit.pulls.get({
     owner: github.context.issue.owner,
     repo: github.context.issue.repo,
     pull_number: github.context.pull.number
   });
 
-  console.log(pr);
-  return pr.body;
+  console.log(data);
+  return data.body;
 }
 
 function getMatchingTickets() {
