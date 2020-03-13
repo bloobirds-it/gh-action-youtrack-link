@@ -125,6 +125,7 @@ async function getMatchingTickets() {
   const description = await getPrDescription();
   console.log(description);
   const matches = [...description.matchAll(ISSUE_REGEX)];
+
   console.log(matches);
 
   return matches.map(x => x[0]);
