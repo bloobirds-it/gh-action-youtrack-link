@@ -2447,6 +2447,8 @@ ${tickets.map(id => `- [${id}](${getIssueLink(id)})`).join("\n")}`
     tickets.forEach(async issueId => {
       const fields = await getFields(issueId);
 
+      console.log(`Got fields: ${fields}`);
+
       const currentState = fields.find(x => x.name === "State");
       const currentStateValue =
         currentState &&
@@ -2543,13 +2545,16 @@ async function commentYT(issueId, text) {
 
 async function updatePR() {
   const description = await getPrDescription();
-  description.replace(ISSUE_REGEX, ticket => `[${ticket}](${YT_URL}${ticket})`);
+  const body = description.replace(
+    ISSUE_REGEX,
+    ticket => `[${ticket}](${YT_URL}${ticket})`
+  );
 
   await octokit.pulls.update({
     owner: github.context.issue.owner,
     repo: github.context.issue.repo,
     pull_number: github.context.issue.number,
-    body: description
+    body
   });
 }
 
