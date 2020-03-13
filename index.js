@@ -24,72 +24,78 @@ const ytApi = axios.create({
 const octokit = new github.GitHub(GITHUB_TOKEN);
 
 async function run() {
-  const tickets = getMatchingTickets();
+  try {
+    const tickets = getMatchingTickets();
 
-  if (tickets.length === 0) {
-    throw "PR description does not contain any issue ID.";
-  }
+    if (tickets.length === 0) {
+      throw "PR description does not contain any issue ID.";
+    }
 
-  console.log(`Found issues: ${tickets.join(",")}.`);
+    console.log(`Found issues: ${tickets.join(",")}.`);
 
-  tickets.forEach(async id => await checkIssueExist(id));
+    tickets.forEach(async id => await checkIssueExist(id));
 
-  await commentPR(
-    `Linked PR to issues:
+    await commentPR(
+      `Linked PR to issues:
 ${tickets.map(id => `- [${id}](${getIssueLink(id)})`).join("\n")}`
-  );
-
-  console.log("Commented PR with linked issues.");
-
-  tickets.forEach(async issueId => {
-    await commentYT(
-      issueId,
-      `New PR [#${github.context.issue.number}](${PR_URL}) opened at [${github.context.issue.owner}/${github.context.issue.repo}](${REPO_URL}) by ${github.context.actor}.`
     );
-  });
 
-  console.log(`Commented YT issues with the according PR.`);
+    console.log("Commented PR with linked issues.");
 
-  await updatePR();
+    tickets.forEach(async issueId => {
+      await commentYT(
+        issueId,
+        `New PR [#${github.context.issue.number}](${PR_URL}) opened at [${github.context.issue.owner}/${github.context.issue.repo}](${REPO_URL}) by ${github.context.actor}.`
+      );
+    });
 
-  console.log("Updated PR description with YT links.");
+    console.log(`Commented YT issues with the according PR.`);
 
-  tickets.forEach(async issueId => {
-    const fields = getFields(issueId);
+    await updatePR();
 
-    const currentState = fields.find(x => x.name === "State");
-    const currentStateValue =
-      currentState &&
-      currentState.value &&
-      currentState.value.name.toLowerCase();
+    console.log("Updated PR description with YT links.");
 
-    if (["to do", "to fix", "in progress"].some(x => x == currentStateValue)) {
-      const response = await ytApi.post(
-        `${issueId}/fields/${currentState.id}?fields=name,id,value(name)`,
-        {
-          value: {
-            name: "PR Open"
+    tickets.forEach(async issueId => {
+      const fields = getFields(issueId);
+
+      const currentState = fields.find(x => x.name === "State");
+      const currentStateValue =
+        currentState &&
+        currentState.value &&
+        currentState.value.name.toLowerCase();
+
+      if (
+        ["to do", "to fix", "in progress"].some(x => x == currentStateValue)
+      ) {
+        const response = await ytApi.post(
+          `${issueId}/fields/${currentState.id}?fields=name,id,value(name)`,
+          {
+            value: {
+              name: "PR Open"
+            }
           }
-        }
-      );
+        );
 
-      console.log(`Changed issue to PR Open ${response.status}`);
+        console.log(`Changed issue to PR Open ${response.status}`);
 
-      await commentPR(
-        `Issue [${issueId}](${getIssueLink(issueId)}) changed from *${
-          currentState.value.name
-        }* to *PR Open*`
-      );
-    }
+        await commentPR(
+          `Issue [${issueId}](${getIssueLink(issueId)}) changed from *${
+            currentState.value.name
+          }* to *PR Open*`
+        );
+      }
 
-    const currentType = fields.find(x => x.name === "Type");
+      const currentType = fields.find(x => x.name === "Type");
 
-    if (currentType && currentType.value && currentType.value.name) {
-      labelPR([`@yt/type/${currentType.value.name}`]);
-    }
-  });
+      if (currentType && currentType.value && currentType.value.name) {
+        labelPR([`@yt/type/${currentType.value.name}`]);
+      }
+    });
 
-  core.setOutput("issues", tickets);
+    core.setOutput("issues", tickets);
+  } catch (error) {
+    core.setFailed(error.message);
+  }
 }
 
 async function labelPR(labels) {
@@ -102,6 +108,8 @@ async function labelPR(labels) {
 }
 
 async function getPrDescription() {
+  console.log("Getting PR description");
+
   const { data } = await octokit.pulls.get({
     owner: github.context.issue.owner,
     repo: github.context.issue.repo,
@@ -172,8 +180,4 @@ function getIssueLink(id) {
   return `${YT_URL}issue/${id}`;
 }
 
-try {
-  run();
-} catch (error) {
-  core.setFailed(error.message);
-}
+run();
