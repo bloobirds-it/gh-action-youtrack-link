@@ -2445,7 +2445,7 @@ ${tickets.map(id => `- [${id}](${getIssueLink(id)})`).join("\n")}`
     console.log("Updated PR description with YT links.");
 
     tickets.forEach(async issueId => {
-      const fields = getFields(issueId);
+      const fields = await getFields(issueId);
 
       const currentState = fields.find(x => x.name === "State");
       const currentStateValue =
@@ -2497,8 +2497,6 @@ async function labelPR(labels) {
 }
 
 async function getPrDescription() {
-  console.log(`Getting PR description ${github.context.issue.number}`);
-
   const { data } = await octokit.pulls.get({
     owner: github.context.issue.owner,
     repo: github.context.issue.repo,
@@ -2512,10 +2510,7 @@ async function getMatchingTickets() {
   console.log(`Checking ${ISSUE_REGEX} against the PR description`);
 
   const description = await getPrDescription();
-  console.log(description);
   const matches = [...description.matchAll(ISSUE_REGEX)];
-
-  console.log(matches);
 
   return matches.map(x => x[0]);
 }
@@ -2547,7 +2542,7 @@ async function commentYT(issueId, text) {
 }
 
 async function updatePR() {
-  const description = getPrDescription();
+  const description = await getPrDescription();
   description.replace(ISSUE_REGEX, ticket => `[${ticket}](${YT_URL}${ticket})`);
 
   await octokit.pulls.update({
