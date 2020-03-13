@@ -5,6 +5,7 @@ const axios = require("axios");
 const GITHUB_TOKEN = core.getInput("githubToken");
 const YT_TOKEN = core.getInput("youtrackToken");
 const YT_URL = core.getInput("youtrackUrl");
+const YT_COLUMN = core.getInput("youtrackColumnName");
 const YT_ISSUE = "api/issues/";
 const REPO_URL = `https://github.com/${github.context.issue.owner}/${github.context.issue.repo}`;
 const PR_URL = `https://github.com/${github.context.issue.owner}/${github.context.issue.repo}/pull/${github.context.issue.number}`;
@@ -36,9 +37,9 @@ async function run() {
     tickets.forEach(async id => await checkIssueExist(id));
 
     await commentPR(
-      `Linked PR to issues: ${tickets
-        .map(id => `[${id}](${getIssueLink(id)})`)
-        .join(", ")}.`
+      `Linked PR to issues:\n${tickets
+        .map(id => `- [${id}](${getIssueLink(id)})`)
+        .join("\n")}`
     );
 
     console.log("Commented PR with linked issues.");
@@ -59,19 +60,12 @@ async function run() {
     tickets.forEach(async issueId => {
       const fields = await getFields(issueId);
 
-      console.log(`Got fields: ${fields}`);
+      const state = fields.find(x => x.name === YT_COLUMN);
+      const value = state.value.name.toLowerCase();
 
-      const currentState = fields.find(x => x.name === "State");
-      const currentStateValue =
-        currentState &&
-        currentState.value &&
-        currentState.value.name.toLowerCase();
-
-      if (
-        ["to do", "to fix", "in progress"].some(x => x == currentStateValue)
-      ) {
+      if (["to do", "to fix", "in progress"].some(x => x == value)) {
         const response = await ytApi.post(
-          `${issueId}/fields/${currentState.id}?fields=name,id,value(name)`,
+          `${issueId}/fields/${state.id}?fields=name,id,value(name)`,
           {
             value: {
               name: "PR Open"
@@ -83,15 +77,15 @@ async function run() {
 
         await commentPR(
           `Issue [${issueId}](${getIssueLink(issueId)}) changed from *${
-            currentState.value.name
+            state.value.name
           }* to *PR Open*`
         );
       }
 
-      const currentType = fields.find(x => x.name === "Type");
+      const type = fields.find(x => x.name === "Type");
 
-      if (currentType && currentType.value && currentType.value.name) {
-        labelPR([`@yt/type/${currentType.value.name}`]);
+      if (type.value.name) {
+        labelPR([`@yt/type/${type.value.name}`]);
       }
     });
 
@@ -161,8 +155,6 @@ async function updatePR() {
     ISSUE_REGEX,
     ticket => `[${ticket}](${YT_URL}${ticket})`
   );
-
-  console.log(description, body);
 
   await octokit.pulls.update({
     owner: github.context.issue.owner,

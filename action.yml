@@ -14,6 +14,9 @@ inputs:
   youtrackToken:
     description: "Youtrack permanent token"
     required: true
+  youtrackColumnName:
+    description: "Youtrack column name type"
+    default: "State"
 outputs:
   issues:
     description: "The ID of the related issues"
