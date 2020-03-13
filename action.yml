@@ -20,6 +20,9 @@ inputs:
   youtrackLabelFields:
     description: "Youtrack fields from which label the PR"
     default: "Type"
+  youtrackLabelPrefix:
+    description: "String to prefix your labels with"
+    default: "@yt/type/"
 outputs:
   issues:
     description: "The ID of the related issues"

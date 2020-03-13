@@ -2394,6 +2394,7 @@ const axios = __webpack_require__(53);
 const GITHUB_TOKEN = core.getInput("githubToken");
 const YT_TOKEN = core.getInput("youtrackToken");
 const YT_URL = core.getInput("youtrackUrl");
+const YT_LABEL_PREFIX = core.getInput("youtrackLabelPrefix");
 const YT_COLUMN = core.getInput("youtrackColumnField");
 const YT_LABELS = core
   .getInput("youtrackLabelFields")
@@ -2426,7 +2427,7 @@ async function run() {
       throw "PR description does not contain any issue ID.";
     }
 
-    console.log(`Found issues: ${tickets.join(",")}.`);
+    console.log(`Found issues: ${tickets.join(", ")}.`);
 
     tickets.forEach(async id => await checkIssueExist(id));
 
@@ -2478,9 +2479,11 @@ async function run() {
 
       YT_LABELS.forEach(label => {
         const type = fields.find(x => x.name === label);
+        const value = type.value.name.toLowerCase();
 
         if (type.value.name) {
-          labelPR([`@yt/type/${type.value.name}`]);
+          console.log(`Label PR with ${value}`);
+          labelPR([`${YT_LABEL_PREFIX}${value}`]);
         }
       });
     });
@@ -2520,7 +2523,7 @@ async function getMatchingTickets() {
 }
 
 async function checkIssueExist(issueId) {
-  const response = await ytApi.get(`api/issues/${issueId}`);
+  const response = await ytApi.get(`${issueId}`);
 
   if (response.status === 404) {
     throw new Error(`Issue ${issueId} not found in your YouTrack instance.`);
