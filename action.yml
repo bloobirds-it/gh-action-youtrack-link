@@ -14,9 +14,12 @@ inputs:
   youtrackToken:
     description: "Youtrack permanent token"
     required: true
-  youtrackColumnName:
+  youtrackColumnField:
     description: "Youtrack column name type"
     default: "State"
+  youtrackLabelFields:
+    description: "Youtrack fields from which label the PR"
+    default: "Type"
 outputs:
   issues:
     description: "The ID of the related issues"

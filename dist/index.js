@@ -2394,7 +2394,12 @@ const axios = __webpack_require__(53);
 const GITHUB_TOKEN = core.getInput("githubToken");
 const YT_TOKEN = core.getInput("youtrackToken");
 const YT_URL = core.getInput("youtrackUrl");
-const YT_COLUMN = core.getInput("youtrackColumnName");
+const YT_COLUMN = core.getInput("youtrackColumnField");
+const YT_LABELS = core
+  .getInput("youtrackLabelFields")
+  .split(",")
+  .map(x => x.trim());
+
 const YT_ISSUE = "api/issues/";
 const REPO_URL = `https://github.com/${github.context.issue.owner}/${github.context.issue.repo}`;
 const PR_URL = `https://github.com/${github.context.issue.owner}/${github.context.issue.repo}/pull/${github.context.issue.number}`;
@@ -2462,7 +2467,7 @@ async function run() {
           }
         );
 
-        console.log(`Changed issue to PR Open ${response.status}`);
+        console.log(`Changed issue to PR Open with status: ${response.status}`);
 
         await commentPR(
           `Issue [${issueId}](${getIssueLink(issueId)}) changed from *${
@@ -2471,11 +2476,13 @@ async function run() {
         );
       }
 
-      const type = fields.find(x => x.name === "Type");
+      YT_LABELS.forEach(label => {
+        const type = fields.find(x => x.name === label);
 
-      if (type.value.name) {
-        labelPR([`@yt/type/${type.value.name}`]);
-      }
+        if (type.value.name) {
+          labelPR([`@yt/type/${type.value.name}`]);
+        }
+      });
     });
 
     core.setOutput("issues", tickets);
