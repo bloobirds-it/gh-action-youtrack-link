@@ -115,6 +115,7 @@ function getMatchingTickets() {
   console.log(`Checking ${ISSUE_REGEX} against the PR description`);
 
   const description = getPrDescription();
+  console.log(description);
   const matches = [...description.matchAll(ISSUE_REGEX)];
 
   return matches.map(x => x[0]);

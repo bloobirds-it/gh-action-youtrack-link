@@ -19,4 +19,4 @@ outputs:
     description: "The ID of the related issues"
 runs:
   using: "node12"
-  main: "dist/index.js"
+  main: "index.js"
