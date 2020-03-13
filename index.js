@@ -25,7 +25,7 @@ const octokit = new github.GitHub(GITHUB_TOKEN);
 
 async function run() {
   try {
-    const tickets = getMatchingTickets();
+    const tickets = await getMatchingTickets();
 
     if (tickets.length === 0) {
       throw "PR description does not contain any issue ID.";
@@ -123,7 +123,6 @@ async function getMatchingTickets() {
   console.log(`Checking ${ISSUE_REGEX} against the PR description`);
 
   const description = await getPrDescription();
-  console.log(description);
   const matches = [...description.matchAll(ISSUE_REGEX)];
 
   return matches.map(x => x[0]);
