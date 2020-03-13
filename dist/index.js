@@ -2502,7 +2502,7 @@ async function getPrDescription() {
   const { data } = await octokit.pulls.get({
     owner: github.context.issue.owner,
     repo: github.context.issue.repo,
-    pull_number: github.context.pull.number
+    pull_number: github.issue.number
   });
 
   return data.body;
@@ -2514,6 +2514,7 @@ async function getMatchingTickets() {
   const description = await getPrDescription();
   console.log(description);
   const matches = [...description.matchAll(ISSUE_REGEX)];
+
   console.log(matches);
 
   return matches.map(x => x[0]);
