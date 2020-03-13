@@ -101,14 +101,15 @@ async function labelPR(labels) {
   });
 }
 
-function getPrDescription() {
-  if (
-    github.context &&
-    github.context.payload &&
-    github.context.payload.pull_request
-  ) {
-    return github.context.payload.pull_request.description;
-  }
+async function getPrDescription() {
+  const pr = await octokit.pulls.get({
+    owner: github.context.issue.owner,
+    repo: github.context.issue.repo,
+    pull_number: github.context.pull.number
+  });
+
+  console.log(pr);
+  return pr.description;
 }
 
 function getMatchingTickets() {
