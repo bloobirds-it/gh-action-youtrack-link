@@ -108,7 +108,7 @@ async function labelPR(labels) {
 }
 
 async function getPrDescription() {
-  console.log("Getting PR description");
+  console.log(`Getting PR description ${github.context.issue.number}`);
 
   const { data } = await octokit.pulls.get({
     owner: github.context.issue.owner,
@@ -164,7 +164,7 @@ async function updatePR() {
   await octokit.pulls.update({
     owner: github.context.issue.owner,
     repo: github.context.issue.repo,
-    pull_number: github.context.pull.number,
+    pull_number: github.context.issue.number,
     body: description
   });
 }
