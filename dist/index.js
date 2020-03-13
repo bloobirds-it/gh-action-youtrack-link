@@ -2425,8 +2425,9 @@ async function run() {
     tickets.forEach(async id => await checkIssueExist(id));
 
     await commentPR(
-      `Linked PR to issues:
-${tickets.map(id => `- [${id}](${getIssueLink(id)})`).join("\n")}`
+      `Linked PR to issues: ${tickets
+        .map(id => `[${id}](${getIssueLink(id)})`)
+        .join(", ")}.`
     );
 
     console.log("Commented PR with linked issues.");
