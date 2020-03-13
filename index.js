@@ -109,7 +109,7 @@ async function getPrDescription() {
   });
 
   console.log(pr);
-  return pr.description;
+  return pr.body;
 }
 
 function getMatchingTickets() {
