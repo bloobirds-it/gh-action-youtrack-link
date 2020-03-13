@@ -2550,6 +2550,8 @@ async function updatePR() {
     ticket => `[${ticket}](${YT_URL}${ticket})`
   );
 
+  console.log(description, body);
+
   await octokit.pulls.update({
     owner: github.context.issue.owner,
     repo: github.context.issue.repo,
