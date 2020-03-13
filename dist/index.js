@@ -2502,7 +2502,7 @@ async function getPrDescription() {
   const { data } = await octokit.pulls.get({
     owner: github.context.issue.owner,
     repo: github.context.issue.repo,
-    pull_number: github.issue.number
+    pull_number: github.context.issue.number
   });
 
   return data.body;
