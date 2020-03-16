@@ -2429,7 +2429,7 @@ async function run() {
 
     console.log(`Found issues: ${tickets.join(", ")}.`);
 
-    tickets.forEach(async id => await checkIssueExist(id));
+    // tickets.forEach(async id => await checkIssueExist(id));
 
     // await commentPR(
     //   `Linked PR to issues:\n${tickets
@@ -2437,20 +2437,20 @@ async function run() {
     //     .join("\n")}`
     // );
 
-    console.log("Commented PR with linked issues.");
+    // console.log("Commented PR with linked issues.");
 
-    tickets.forEach(async issueId => {
-      await commentYT(
-        issueId,
-        `New PR [#${github.context.issue.number}](${PR_URL}) opened at [${github.context.issue.owner}/${github.context.issue.repo}](${REPO_URL}) by ${github.context.actor}.`
-      );
-    });
+    // tickets.forEach(async issueId => {
+    //   await commentYT(
+    //     issueId,
+    //     `New PR [#${github.context.issue.number}](${PR_URL}) opened at [${github.context.issue.owner}/${github.context.issue.repo}](${REPO_URL}) by ${github.context.actor}.`
+    //   );
+    // });
 
     // console.log(`Commented YT issues with the according PR.`);
 
-    await updatePR();
+    // await updatePR();
 
-    console.log("Updated PR description with YT links.");
+    // console.log("Updated PR description with YT links.");
 
     tickets.forEach(async issueId => {
       const fields = await getFields(issueId);
@@ -2528,7 +2528,7 @@ async function checkIssueExist(issueId) {
 
   if (response.status === 404) {
     throw new Error(`Issue ${issueId} not found in your YouTrack instance.`);
-  } else if (response.statusText != "OK") {
+  } else if (response.statusText !== "OK") {
     throw new Error(`Unknown error connecting to YouTrack ${response.status}`);
   }
 }
