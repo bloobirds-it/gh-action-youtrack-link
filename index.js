@@ -99,7 +99,7 @@ async function run() {
       });
     });
 
-    // core.setOutput("issues", tickets);
+    core.setOutput("issues", tickets);
   } catch (error) {
     core.setFailed(error.message);
   }

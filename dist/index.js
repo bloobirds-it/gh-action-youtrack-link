@@ -2483,7 +2483,7 @@ async function run() {
 
         if (type.value.name) {
           console.log(`Label PR with ${value}`);
-          labelPR([`${YT_LABEL_PREFIX}${value}`]);
+          labelPR([`${YT_LABEL_PREFIX}${value.toLowerCase()}`]);
         }
       });
     });
