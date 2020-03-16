@@ -40,64 +40,64 @@ async function run() {
 
     console.log(`Found issues: ${tickets.join(", ")}.`);
 
-    // tickets.forEach(async id => await checkIssueExist(id));
+    tickets.forEach(async id => await checkIssueExist(id));
 
-    // await commentPR(
-    //   `Linked PR to issues:\n${tickets
-    //     .map(id => `- [${id}](${getIssueLink(id)})`)
-    //     .join("\n")}`
-    // );
+    await commentPR(
+      `Linked PR to issues:\n${tickets
+        .map(id => `- [${id}](${getIssueLink(id)})`)
+        .join("\n")}`
+    );
 
-    // console.log("Commented PR with linked issues.");
-
-    // tickets.forEach(async issueId => {
-    //   await commentYT(
-    //     issueId,
-    //     `New PR [#${github.context.issue.number}](${PR_URL}) opened at [${github.context.issue.owner}/${github.context.issue.repo}](${REPO_URL}) by ${github.context.actor}.`
-    //   );
-    // });
-
-    // console.log(`Commented YT issues with the according PR.`);
-
-    // await updatePR();
-
-    // console.log("Updated PR description with YT links.");
+    console.log("Commented PR with linked issues.");
 
     tickets.forEach(async issueId => {
-      const fields = await getFields(issueId);
-
-      const state = fields.find(x => x.name === YT_COLUMN);
-      const value = state.value.name.toLowerCase();
-
-      if (["to do", "to fix", "in progress"].some(x => x == value)) {
-        const response = await ytApi.post(
-          `${issueId}/fields/${state.id}?fields=name,id,value(name)`,
-          {
-            value: {
-              name: "PR Open"
-            }
-          }
-        );
-
-        console.log(`Changed issue to PR Open with status: ${response.status}`);
-
-        await commentPR(
-          `Issue [${issueId}](${getIssueLink(issueId)}) changed from *${
-            state.value.name
-          }* to *PR Open*`
-        );
-      }
-
-      YT_LABELS.forEach(label => {
-        const type = fields.find(x => x.name === label);
-        const value = type.value.name.toLowerCase();
-
-        if (type.value.name) {
-          console.log(`Label PR with ${value}`);
-          labelPR([`${YT_LABEL_PREFIX}${value.toLowerCase()}`]);
-        }
-      });
+      await commentYT(
+        issueId,
+        `New PR [#${github.context.issue.number}](${PR_URL}) opened at [${github.context.issue.owner}/${github.context.issue.repo}](${REPO_URL}) by ${github.context.actor}.`
+      );
     });
+
+    console.log(`Commented YT issues with the according PR.`);
+
+    await updatePR();
+
+    console.log("Updated PR description with YT links.");
+
+    // tickets.forEach(async issueId => {
+    //   const fields = await getFields(issueId);
+
+    //   const state = fields.find(x => x.name === YT_COLUMN);
+    //   const value = state.value.name.toLowerCase();
+
+    //   if (["to do", "to fix", "in progress"].some(x => x == value)) {
+    //     const response = await ytApi.post(
+    //       `${issueId}/fields/${state.id}?fields=name,id,value(name)`,
+    //       {
+    //         value: {
+    //           name: "PR Open"
+    //         }
+    //       }
+    //     );
+
+    //     console.log(`Changed issue to PR Open with status: ${response.status}`);
+
+    //     await commentPR(
+    //       `Issue [${issueId}](${getIssueLink(issueId)}) changed from *${
+    //         state.value.name
+    //       }* to *PR Open*`
+    //     );
+    //   }
+
+    //   YT_LABELS.forEach(label => {
+    //     const type = fields.find(x => x.name === label);
+    //     const value = type.value.name.toLowerCase();
+
+    //     if (type.value.name) {
+    //       console.log(`Label PR with ${value}`);
+    //       labelPR([`${YT_LABEL_PREFIX}${value.toLowerCase()}`]);
+    //     }
+    //   });
+    // });
 
     core.setOutput("issues", tickets);
   } catch (error) {
