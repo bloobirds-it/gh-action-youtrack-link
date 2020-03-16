@@ -2490,8 +2490,8 @@ async function run() {
 
     core.setOutput("issues", tickets);
   } catch (error) {
-    console.log(error.message);
-    // core.setFailed(error.message);
+    console.log(error.stack);
+    core.setFailed(error.message);
   }
 }
 
