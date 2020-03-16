@@ -94,12 +94,12 @@ async function run() {
 
         if (type.value.name) {
           console.log(`Label PR with ${value}`);
-          labelPR([`${YT_LABEL_PREFIX}${value}`]);
+          labelPR([`${YT_LABEL_PREFIX}${value.toLowerCase()}`]);
         }
       });
     });
 
-    core.setOutput("issues", tickets);
+    // core.setOutput("issues", tickets);
   } catch (error) {
     core.setFailed(error.message);
   }

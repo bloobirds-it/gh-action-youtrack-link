@@ -22,7 +22,6 @@ inputs:
     default: "Type"
   youtrackLabelPrefix:
     description: "String to prefix your labels with"
-    default: "@yt/type/"
 outputs:
   issues:
     description: "The ID of the related issues"
