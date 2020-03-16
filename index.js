@@ -42,11 +42,11 @@ async function run() {
 
     tickets.forEach(async id => await checkIssueExist(id));
 
-    await commentPR(
-      `Linked PR to issues:\n${tickets
-        .map(id => `- [${id}](${getIssueLink(id)})`)
-        .join("\n")}`
-    );
+    // await commentPR(
+    //   `Linked PR to issues:\n${tickets
+    //     .map(id => `- [${id}](${getIssueLink(id)})`)
+    //     .join("\n")}`
+    // );
 
     console.log("Commented PR with linked issues.");
 
@@ -57,7 +57,7 @@ async function run() {
       );
     });
 
-    console.log(`Commented YT issues with the according PR.`);
+    // console.log(`Commented YT issues with the according PR.`);
 
     await updatePR();
 
