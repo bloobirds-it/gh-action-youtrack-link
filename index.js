@@ -101,7 +101,8 @@ async function run() {
 
     core.setOutput("issues", tickets);
   } catch (error) {
-    core.setFailed(error.message);
+    console.log(error.message);
+    // core.setFailed(error.message);
   }
 }
 
