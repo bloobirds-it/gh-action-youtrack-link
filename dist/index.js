@@ -2452,46 +2452,48 @@ async function run() {
 
     console.log("Updated PR description with YT links.");
 
-    // tickets.forEach(async issueId => {
-    //   const fields = await getFields(issueId);
+    tickets.forEach(async issueId => {
+      const fields = await getFields(issueId);
 
-    //   const state = fields.find(x => x.name === YT_COLUMN);
-    //   const value = state.value.name.toLowerCase();
+      const state = fields.find(x => x.name === YT_COLUMN);
+      const value = state.value.name.toLowerCase();
 
-    //   if (["to do", "to fix", "in progress"].some(x => x == value)) {
-    //     const response = await ytApi.post(
-    //       `${issueId}/fields/${state.id}?fields=name,id,value(name)`,
-    //       {
-    //         value: {
-    //           name: "PR Open"
-    //         }
-    //       }
-    //     );
+      if (["to do", "to fix", "in progress"].some(x => x == value)) {
+        const response = await ytApi.post(
+          `${issueId}/fields/${state.id}?fields=name,id,value(name)`,
+          {
+            value: {
+              name: "PR Open"
+            }
+          }
+        );
 
-    //     console.log(`Changed issue to PR Open with status: ${response.status}`);
+        console.log(`Changed issue to PR Open with status: ${response.status}`);
 
-    //     await commentPR(
-    //       `Issue [${issueId}](${getIssueLink(issueId)}) changed from *${
-    //         state.value.name
-    //       }* to *PR Open*`
-    //     );
-    //   }
+        await commentPR(
+          `Issue [${issueId}](${getIssueLink(issueId)}) changed from *${
+            state.value.name
+          }* to *PR Open*`
+        );
+      }
 
-    //   YT_LABELS.forEach(label => {
-    //     const type = fields.find(x => x.name === label);
-    //     const value = type.value.name.toLowerCase();
+      YT_LABELS.forEach(label => {
+        const type = fields.find(x => x.name === label);
+        const value = type.value.name.toLowerCase();
 
-    //     if (type.value.name) {
-    //       console.log(`Label PR with ${value}`);
-    //       labelPR([`${YT_LABEL_PREFIX}${value.toLowerCase()}`]);
-    //     }
-    //   });
-    // });
+        if (type.value.name) {
+          console.log(`Label PR with ${value}`);
+          labelPR([`${YT_LABEL_PREFIX}${value.toLowerCase()}`]);
+        }
+      });
+    });
 
     core.setOutput("issues", tickets);
   } catch (error) {
-    console.log(error.stack);
-    core.setFailed(error.message);
+    if (error.message !== `(s || "").replace is not a function`) {
+      console.log(error.stack);
+      core.setFailed(error.message);
+    }
   }
 }
 
